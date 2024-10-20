@@ -102,140 +102,25 @@ int main(int argc, char** argv) {
         T max_diff = checkResult(c_h, c_d_ref);
         std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
     }
+    std::cout << "grid_size,block_size,elasped_time,max_diff" << std::endl;
+    {
+        for (int block_size = 1; block_size < 1025; ++block_size) {
+            int grid_size = (N - block_size + 1) / block_size;
+            CALL_CUDA(cudaDeviceSynchronize());
+            auto start = std::chrono::high_resolution_clock::now();
+            vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
+            CALL_CUDA(cudaDeviceSynchronize());
+            auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-     {
-        int block_size = 512;
-        int grid_size = (N - block_size + 1) / block_size;
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto start = std::chrono::high_resolution_clock::now();
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
+            std::vector<T> c_d_ref(N);
+            CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
 
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
+            T max_diff = checkResult(c_h, c_d_ref);
+            std::cout << grid_size << "," << block_size << "," << duration.count() << "," << max_diff << std::endl;
+        }
     }   
 
-    {
-        int block_size = 256;
-        int grid_size = (N - block_size + 1) / block_size;
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto start = std::chrono::high_resolution_clock::now();
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
-
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
-    }
-
-    {
-        int block_size = 128;
-        int grid_size = (N - block_size + 1) / block_size;
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto start = std::chrono::high_resolution_clock::now();
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
-
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
-    }
-
-    {
-        int block_size = 64;
-        int grid_size = (N - block_size + 1) / block_size;
-        auto start = std::chrono::high_resolution_clock::now();
-        CALL_CUDA(cudaDeviceSynchronize());
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
-
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
-    }
-
-    {
-        int block_size = 32;
-        int grid_size = (N - block_size + 1) / block_size;
-        auto start = std::chrono::high_resolution_clock::now();
-        CALL_CUDA(cudaDeviceSynchronize());
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
-
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
-    }
-
-    {
-        int block_size = 16;
-        int grid_size = (N - block_size + 1) / block_size;
-        auto start = std::chrono::high_resolution_clock::now();
-        CALL_CUDA(cudaDeviceSynchronize());
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
-
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
-    }
-
-    {
-        int block_size = 8;
-        int grid_size = (N - block_size + 1) / block_size;
-        auto start = std::chrono::high_resolution_clock::now();
-        CALL_CUDA(cudaDeviceSynchronize());
-        vectorAddCUDAParallel<<<grid_size, block_size>>>(a_d, b_d, c_d, N);
-        CALL_CUDA(cudaDeviceSynchronize());
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "grid_size:" << grid_size << " block_size:" << block_size << " ";
-        std::cout << "vectorAddCUDAParallel took " << duration.count() << " milliseconds to execute." << std::endl;
-
-        std::vector<T> c_d_ref(N);
-        CALL_CUDA(cudaMemcpy(c_d_ref.data(), c_d, sizeof(T) * N, cudaMemcpyDeviceToHost));
-
-        T max_diff = checkResult(c_h, c_d_ref);
-        std::cout << "cpu and gpu max diff:" << max_diff << std::endl;
-    }
-    
     CALL_CUDA(cudaDeviceSynchronize());
 
     CALL_CUDA(cudaFree(a_d));
