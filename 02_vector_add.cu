@@ -3,17 +3,12 @@
 #include <cmath>
 #include <iostream>
 #include <chrono>
+#include "utils.h"
 
 using namespace std::chrono;
 
 
-#define CALL_CUDA(expr) \
-    do {    \
-        cudaError_t code = expr; \
-        if (code != cudaSuccess)  { \
-            std::cout << __FILE__ << ":" << __LINE__ << cudaGetErrorString(code) << std::endl; \
-        } \
-    } while(0);
+
 
 template <typename T>
 void vectorAddCPU(const T* a, const T* b, T* out, int N) {
@@ -38,20 +33,6 @@ __global__ void vectorAddCUDAParallel(const T* a, const T* b, T* out, int N) {
         out[idx] = a[idx] + b[idx];
     }
 } 
-
-template <typename T>
-T checkResult(const std::vector<T>& cpu, const std::vector<T>& gpu, bool print_detail = false) {
-    T max_diff = 0;
-    size_t N = cpu.size();
-    for (size_t i = 0; i < N; i++) {
-        T diff = std::abs(cpu[i] - gpu[i]);
-        if (print_detail) {
-            std::cout << cpu[i] << "\t" << gpu[i] << "\t" << diff << std::endl;
-        }
-        max_diff = std::max(max_diff, diff);
-    }
-    return max_diff;
-}
 
 int main(int argc, char** argv) {
     using T = float;
